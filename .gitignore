@@ -1,0 +1,13 @@
+/.vscode/*
+/data/*
+!/data/.gitkeep
+/logs/*
+/test_img/*
+/Script/.gradio/*
+/Script/__pycache__/*
+/Script/temp/*
+/Script/temp2/*
+/Script/exports/*
+/Script/features_256/*
+/Script/features_test/*
+/Script/saved_models/other_model/*

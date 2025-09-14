@@ -1,0 +1,15 @@
+{
+  "weights_if_no_sklearn": [
+    0.05,
+    0.4,
+    0.5499999999999999
+  ],
+  "auc_on_val_with_simplex": 0.9876527282474419,
+  "order": [
+    "PRNU",
+    "ELA",
+    "CLIP"
+  ],
+  "note": "sigmoid(X@w) fallback; no bias",
+  "clip_mode": "logreg"
+}
