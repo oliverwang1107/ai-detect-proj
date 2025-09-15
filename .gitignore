@@ -11,3 +11,5 @@
 /Script/features_256/*
 /Script/features_test/*
 /Script/saved_models/other_model/*
+Script/client_secrets.json
+Script/other code/token.json
