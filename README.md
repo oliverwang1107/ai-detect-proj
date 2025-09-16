@@ -10,6 +10,7 @@
       * **PRNU (光響應不均勻性)**：利用感光元件的固有噪聲模式來識別圖像來源。
       * **ELA (錯誤級別分析)**：透過分析 JPEG 壓縮的錯誤級別差異來檢測圖像的偽造區域。
       * **CLIP (對比語言-圖像預訓練)**：利用大型視覺模型的深層特徵來區分真實與 AI 生成的圖像風格。
+      
   * **滑動窗口推論 (Tiling Inference)**：可分析任意尺寸的圖像。系統會將大圖切分為 256x256 的圖塊（Tile），逐塊分析後再進行綜合評分。
   * **GPU 加速**：核心運算利用 PyTorch (CUDA) 和 RAPIDS cuML 函式庫，大幅提升訓練與推論效率。
   * **互動式 Web UI**：內建 Gradio 介面 (`inf.ipynb`, `inf_full.ipynb`)，使用者可輕鬆上傳圖片、調整參數並即時查看熱度圖（Heatmap）和檢測結果。
@@ -134,3 +135,53 @@ pip install open_clip_torch scikit-image scikit-learn joblib Pillow pillow-heif 
   * **FastCNN**：用於 PRNU 和 ELA 特徵的輕量級卷積神經網絡，採用深度可分離卷積（Depthwise-Separable Convolutions）以提高效率。
   * **CLIP Head**：使用預訓練的 `ViT-L-14(laion2b_s32b_b82k)` 作為骨幹網絡，並在其提取的特徵之上訓練一個 cuML Logistic Regression 分類器。
   * **融合模型 (Fusion Model)**：一個 Logistic Regression 分類器，其輸入為上述三個獨立模型的 Logit 分數，輸出最終的偽造機率。
+
+## 訓練與評估結果
+
+以下為最近一次以「CLIP 後端使用 cuML LogisticRegression (logit)」所得到的驗證/測試成績（IID split）：
+
+### 單模態（val）
+
+- PRNU：acc=0.9153，auc=0.9613
+- ELA：acc=0.9365，auc=0.9779
+- CLIP：acc=0.9321，auc=0.9754
+
+融合（以驗證集 logits 訓練 LR）
+
+- Fusion (LR on val) AUC=0.9875
+
+### 單模態（test）
+
+- PRNU：acc=0.9181，auc=0.9628
+- ELA：acc=0.9365，auc=0.9779
+- CLIP：acc=0.9292，auc=0.9767
+
+### FUSION（test）
+
+- Fusion：acc=0.9608，auc=0.9882
+
+混淆矩陣：
+
+```
+[[8151  249]
+ [ 401 7771]]
+```
+
+分類報告：
+
+```
+              precision    recall  f1-score   support
+
+        real     0.9531    0.9704    0.9617      8400
+        fake     0.9690    0.9509    0.9599      8172
+
+    accuracy                         0.9608     16572
+   macro avg     0.9610    0.9606    0.9608     16572
+weighted avg     0.9609    0.9608    0.9608     16572
+```
+
+模型與結果檔案：
+
+- 儲存的融合模型：`Script/saved_models/fusion_lr.pkl`
+- 融合模型中繼資料：`Script/saved_models/fusion_lr_meta.json`
+- 測試評估分數輸出：`Script/exports/fusion_eval/iid`
